@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.facebook.react.bridge.ReadableMap;
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaTrack;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.TextTrackStyle;
 import com.google.android.gms.common.images.WebImage;
@@ -13,6 +14,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MediaInfoBuilder {
     private static final String DEFAULT_CONTENT_TYPE = "video/mp4";
@@ -115,6 +118,25 @@ public class MediaInfoBuilder {
         Integer streamDuration = ReadableMapUtils.getInt(parameters, "streamDuration");
         if (streamDuration != null) {
             builder = builder.setStreamDuration(streamDuration);
+        }
+
+
+        String captionCode = ReadableMapUtils.getString(parameters, "captionCode");
+        String captionName = ReadableMapUtils.getString(parameters, "captionName");
+        String captionUrl = ReadableMapUtils.getString(parameters, "captionUrl");
+        if (captionUrl != null && captionName != null && captionCode != null) {
+             MediaTrack track = new MediaTrack.Builder(0, MediaTrack.TYPE_TEXT)
+            .setContentId(captionUrl)
+            .setSubtype(MediaTrack.SUBTYPE_SUBTITLES)
+            .setContentType("ISO-8859-1")
+            .setLanguage(captionCode)
+            .setName(captionName)
+            .build();
+
+            List<MediaTrack> mediaTracks = new ArrayList<>(); 
+            mediaTracks.add(track); 
+
+            builder = builder.setMediaTracks(mediaTracks);
         }
 
         ReadableMap textTrackStyle = ReadableMapUtils.getReadableMap(parameters, "textTrackStyle");
